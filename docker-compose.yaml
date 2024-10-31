@@ -6,6 +6,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true    # 在 Windows 中启用轮询
       - DB_HOST=db
       - DB_USER=root
       - DB_PASS=root
@@ -15,8 +16,8 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/usr/src/app    # 挂载当前目录到容器的工作目录
+      - /usr/src/app/node_modules    # 排除 node_modules
     command: sh -c "sleep 10 && npm run dev"
 
   db:
