@@ -15,17 +15,26 @@ const sequelize = new Sequelize(
   }
 );
 
-async function testConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log('数据库连接成功。');
-  } catch (error) {
-    console.error('数据库连接错误:', {
-      message: error.message,
-      errorType: error.name,
-      original: error.original
-    });
-    process.exit(1);
+async function testConnection(retries = 5) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await sequelize.authenticate();
+      console.log('数据库连接成功。');
+      return true;
+    } catch (error) {
+      console.error(`数据库连接尝试 ${i + 1}/${retries} 失败:`, {
+        message: error.message,
+        errorType: error.name,
+        original: error.original
+      });
+      
+      if (i < retries - 1) {
+        console.log('等待 5 秒后重试...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } else {
+        process.exit(1);
+      }
+    }
   }
 }
 
